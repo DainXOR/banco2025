@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("api/customers")
 public class CustomerController {
     private final CustomerService customerService;
 
@@ -17,22 +17,32 @@ public class CustomerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
+    public ResponseEntity<List<CustomerDTO>> getAll() {
         return ResponseEntity.ok(customerService.getAllCustomers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
-        return customerService.getCustomerById(id)
+    public ResponseEntity<CustomerDTO> getById(@PathVariable Long id) {
+        System.out.println("Received id: " + id);
+        return customerService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/account/{accountNumber}")
+    public ResponseEntity<CustomerDTO> getByAccountNumber(@PathVariable String accountNumber) {
+        System.out.println("Received number: " + accountNumber);
+        return customerService.getByAccountNumber(accountNumber)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO customerDTO) {
-        if (customerDTO.getBalance() == null) {
-            customerDTO.setBalance(0.0);
-        }
+        // print the received customerDTO to the console
+        System.out.println("Received CustomerDTO:");
+        System.out.println("- " + customerDTO.getFirstName());
+        System.out.println("- " + customerDTO.getLastName());
+
         CustomerDTO createdCustomer = customerService.createCustomer(customerDTO);
         return ResponseEntity.status(201).body(createdCustomer);
     }

@@ -28,12 +28,28 @@ public class CustomerService {
                 .toList();
     }
 
-    public Optional<CustomerDTO> getCustomerById(Long id) {
+    public Optional<CustomerDTO> getById(Long id) {
         return customerRepository.findById(id).map(customerMapper::toDTO);
+    }
+
+    public Optional<CustomerDTO> getByAccountNumber(String accountNumber) {
+        return customerRepository.findByAccountNumber(accountNumber).map(customerMapper::toDTO);
     }
 
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
         Customer customer = customerMapper.toEntity(customerDTO);
+
+        if (customer.getId() != null) {
+            customer.setId(null); // Ensure ID is null to auto-generate
+        }
+        if (customer.getAccountNumber() != null) {
+            customer.setAccountNumber(null); // Ensure account number is null to auto-generate
+        }
+
+        customer.setBalance(0.0);
+        long newAccountNumber = customerRepository.count() + 1;
+        customer.setAccountNumber(Long.toString(newAccountNumber));
+
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toDTO(savedCustomer);
     }
