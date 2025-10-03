@@ -2,7 +2,7 @@ package com.udea.dainxor.banco2025.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
@@ -10,6 +10,14 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "sender_account_number", nullable = false)
+    private String senderAccountNumber;
+    @Column(name = "receiver_account_number", nullable = false)
+    private String receiverAccountNumber;
+    @Column(nullable = false)
+    private Double amount;
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
 
     public Long getId() {
         return id;
@@ -43,21 +51,12 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public LocalDate getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDate timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
-
-    @Column(name = "sender_account_number", nullable = false)
-    private String senderAccountNumber;
-    @Column(name = "receiver_account_number", nullable = false)
-    private String receiverAccountNumber;
-    @Column(nullable = false)
-    private Double amount;
-    @Column(nullable = false)
-    private LocalDate timestamp;
 
 }

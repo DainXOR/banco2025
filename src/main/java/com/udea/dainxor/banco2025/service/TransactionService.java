@@ -1,6 +1,7 @@
 package com.udea.dainxor.banco2025.service;
 
 import com.udea.dainxor.banco2025.DTO.TransactionDTO;
+import com.udea.dainxor.banco2025.DTO.TransactionRequestDTO;
 import com.udea.dainxor.banco2025.entity.Customer;
 import com.udea.dainxor.banco2025.entity.Transaction;
 import com.udea.dainxor.banco2025.mapper.TransactionMapper;
@@ -25,28 +26,31 @@ public class TransactionService {
         this.transactionMapper = transactionMapper;
     }
 
-    public TransactionDTO transfer(TransactionDTO transactionDTO) {
-        if(transactionDTO.getSenderAccountNumber() == null || transactionDTO.getReceiverAccountNumber() == null) {
+    public TransactionDTO create(TransactionRequestDTO transactionRequestDTO) {
+        if(transactionRequestDTO.getSenderAccountNumber() == null || transactionRequestDTO.getReceiverAccountNumber() == null) {
             throw new IllegalArgumentException("Sender and receiver account numbers must be provided.");
         }
 
-        Customer sender = customerRepository.findByAccountNumber(transactionDTO.getSenderAccountNumber())
+        Customer sender = customerRepository.findByAccountNumber(transactionRequestDTO.getSenderAccountNumber())
                 .orElseThrow(() -> new IllegalArgumentException("Sender account not found."));
 
-        Customer receiver = customerRepository.findByAccountNumber(transactionDTO.getReceiverAccountNumber())
+        Customer receiver = customerRepository.findByAccountNumber(transactionRequestDTO.getReceiverAccountNumber())
                 .orElseThrow(() -> new IllegalArgumentException("Receiver account not found."));
 
-        if (sender.getBalance() < transactionDTO.getAmount()) {
+        if (sender.getBalance() < transactionRequestDTO.getAmount()) {
             throw new IllegalArgumentException("Insufficient funds in sender's account.");
         }
 
-        sender.setBalance(sender.getBalance() - transactionDTO.getAmount());
-        receiver.setBalance(receiver.getBalance() + transactionDTO.getAmount());
+        sender.setBalance(sender.getBalance() - transactionRequestDTO.getAmount());
+        receiver.setBalance(receiver.getBalance() + transactionRequestDTO.getAmount());
 
         customerRepository.save(sender);
         customerRepository.save(receiver);
 
-        Transaction transaction = transactionMapper.toEntity(transactionDTO);
+        Transaction transaction = transactionMapper.toEntity(transactionRequestDTO);
+        transaction.setTimestamp(java.time.LocalDateTime.now());
+        System.out.print("Transaction: ");
+        System.out.println(transaction);
         Transaction savedTransaction = transactionRepository.save(transaction);
         return transactionMapper.toDTO(savedTransaction);
     }
