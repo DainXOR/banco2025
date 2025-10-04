@@ -53,4 +53,18 @@ public class CustomerService {
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toDTO(savedCustomer);
     }
+
+    public CustomerDTO deposit(Long id, double amount){
+        Customer customer = customerRepository.findById(id)
+                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        
+        if (amount < 0.0){
+            throw new IllegalArgumentException("The amount for deposit must be positive.");
+        }
+
+        customer.setBalance(customer.getBalance() + amount);
+        Customer savedEntity = customerRepository.save(customer);
+        return customerMapper.toDTO(savedEntity);
+    }
+
 }

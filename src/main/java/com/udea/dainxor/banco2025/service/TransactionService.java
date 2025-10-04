@@ -73,9 +73,4 @@ public class TransactionService {
         return transactionRepository.findById(id).map(transactionMapper::toDTO);
     }
 
-    public TransactionDTO createTransaction(TransactionDTO transactionDTO) {
-        Transaction transaction = transactionMapper.toEntity(transactionDTO);
-        Transaction savedTransaction = transactionRepository.save(transaction);
-        return transactionMapper.toDTO(savedTransaction);
-    }
 }

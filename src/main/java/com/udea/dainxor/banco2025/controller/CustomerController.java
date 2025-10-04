@@ -1,7 +1,10 @@
 package com.udea.dainxor.banco2025.controller;
 
 import com.udea.dainxor.banco2025.DTO.CustomerDTO;
+import com.udea.dainxor.banco2025.DTO.DepositDTO;
 import com.udea.dainxor.banco2025.service.CustomerService;
+
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,5 +48,17 @@ public class CustomerController {
 
         CustomerDTO createdCustomer = customerService.createCustomer(customerDTO);
         return ResponseEntity.status(201).body(createdCustomer);
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<CustomerDTO> depositMoney(@RequestBody DepositDTO depositDTO){
+
+        return ResponseEntity.ok(customerService.deposit(depositDTO.getId(), depositDTO.getAmount()));
+    }
+
+    @PostMapping("/withdrawal")
+    public ResponseEntity<CustomerDTO> withdrawMoney(@RequestBody DepositDTO depositDTO){
+
+        return ResponseEntity.ok(customerService.withdrawal(depositDTO.getId(), depositDTO.getAmount()));
     }
 }
