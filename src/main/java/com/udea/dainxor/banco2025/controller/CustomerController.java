@@ -55,10 +55,4 @@ public class CustomerController {
 
         return ResponseEntity.ok(customerService.deposit(depositDTO.getId(), depositDTO.getAmount()));
     }
-
-    @PostMapping("/withdrawal")
-    public ResponseEntity<CustomerDTO> withdrawMoney(@RequestBody DepositDTO depositDTO){
-
-        return ResponseEntity.ok(customerService.withdrawal(depositDTO.getId(), depositDTO.getAmount()));
-    }
 }
