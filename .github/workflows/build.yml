@@ -51,6 +51,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
+          distribution: 'temurin'
       #Set up SonarCloud cache
       - name: Cache SonarCloud packages
         #This action allows caching dependencies and build outputs to improve workflow execution time.
