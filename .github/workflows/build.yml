@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - lab2
 jobs:
   #Test's job
   tests:
