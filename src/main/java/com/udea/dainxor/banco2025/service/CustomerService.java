@@ -1,6 +1,6 @@
 package com.udea.dainxor.banco2025.service;
 
-import com.udea.dainxor.banco2025.DTO.CustomerDTO;
+import com.udea.dainxor.banco2025.dto.CustomerDTO;
 import com.udea.dainxor.banco2025.entity.Customer;
 import com.udea.dainxor.banco2025.mapper.CustomerMapper;
 import com.udea.dainxor.banco2025.repository.CustomerRepository;

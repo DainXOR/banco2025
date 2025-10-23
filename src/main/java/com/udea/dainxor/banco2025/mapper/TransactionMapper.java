@@ -1,7 +1,7 @@
 package com.udea.dainxor.banco2025.mapper;
 
-import com.udea.dainxor.banco2025.DTO.TransactionDTO;
-import com.udea.dainxor.banco2025.DTO.TransactionRequestDTO;
+import com.udea.dainxor.banco2025.dto.TransactionDTO;
+import com.udea.dainxor.banco2025.dto.TransactionRequestDTO;
 import com.udea.dainxor.banco2025.entity.Transaction;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

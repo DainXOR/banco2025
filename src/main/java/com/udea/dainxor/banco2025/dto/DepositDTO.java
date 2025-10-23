@@ -1,4 +1,4 @@
-package com.udea.dainxor.banco2025.DTO;
+package com.udea.dainxor.banco2025.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

@@ -1,14 +1,14 @@
 package com.udea.dainxor.banco2025.mapper;
 
-import com.udea.dainxor.banco2025.DTO.TransactionDTO;
-import com.udea.dainxor.banco2025.DTO.TransactionRequestDTO;
+import com.udea.dainxor.banco2025.dto.TransactionDTO;
+import com.udea.dainxor.banco2025.dto.TransactionRequestDTO;
 import com.udea.dainxor.banco2025.entity.Transaction;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-12T17:23:17-0500",
+    date = "2025-10-23T15:38:29-0500",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 24.0.2 (Eclipse Adoptium)"
 )
 @Component

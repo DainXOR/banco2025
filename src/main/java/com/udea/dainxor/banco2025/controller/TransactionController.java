@@ -1,13 +1,12 @@
 package com.udea.dainxor.banco2025.controller;
 
-import com.udea.dainxor.banco2025.DTO.TransactionDTO;
-import com.udea.dainxor.banco2025.DTO.TransactionRequestDTO;
+import com.udea.dainxor.banco2025.dto.TransactionDTO;
+import com.udea.dainxor.banco2025.dto.TransactionRequestDTO;
 import com.udea.dainxor.banco2025.service.TransactionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/transactions")

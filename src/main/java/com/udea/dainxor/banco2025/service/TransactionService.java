@@ -1,7 +1,7 @@
 package com.udea.dainxor.banco2025.service;
 
-import com.udea.dainxor.banco2025.DTO.TransactionDTO;
-import com.udea.dainxor.banco2025.DTO.TransactionRequestDTO;
+import com.udea.dainxor.banco2025.dto.TransactionDTO;
+import com.udea.dainxor.banco2025.dto.TransactionRequestDTO;
 import com.udea.dainxor.banco2025.entity.Customer;
 import com.udea.dainxor.banco2025.entity.Transaction;
 import com.udea.dainxor.banco2025.mapper.TransactionMapper;
@@ -49,8 +49,6 @@ public class TransactionService {
 
         Transaction transaction = transactionMapper.toEntity(transactionRequestDTO);
         transaction.setTimestamp(java.time.LocalDateTime.now());
-        System.out.print("Transaction: ");
-        System.out.println(transaction);
         Transaction savedTransaction = transactionRepository.save(transaction);
         return transactionMapper.toDTO(savedTransaction);
     }

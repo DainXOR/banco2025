@@ -38,7 +38,7 @@ class Banco2025ApplicationTests {
 	}
 
 	@Test
-	public void testRandomCurrenciesCodeFormat(){
+	void testRandomCurrenciesCodeFormat(){
 		FakerController controller = new FakerController();
 		JsonNode response = controller.getRandomCurrencies();
 		for(int i=0; i< response.size(); i++){
@@ -49,7 +49,7 @@ class Banco2025ApplicationTests {
 	}
 
 	@Test
-	public void testRandomNationsPerformance() {
+	void testRandomNationsPerformance() {
 		FakerController controller = new FakerController();
 		long startTime = System.currentTimeMillis();
 

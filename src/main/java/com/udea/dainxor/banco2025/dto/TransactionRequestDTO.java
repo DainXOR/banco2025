@@ -1,34 +1,20 @@
-package com.udea.dainxor.banco2025.DTO;
+package com.udea.dainxor.banco2025.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.time.LocalDateTime;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TransactionDTO {
-    private Long id;
+public class TransactionRequestDTO {
     private String senderAccountNumber;
     private String receiverAccountNumber;
     private Double amount;
-    private LocalDateTime timestamp;
 
-    public TransactionDTO() {
+    public TransactionRequestDTO() {
     }
 
-    public TransactionDTO(Long id, String senderAccountNumber, String receiverAccountNumber, Double amount, LocalDateTime timestamp) {
-        this.id = id;
+    public TransactionRequestDTO(String senderAccountNumber, String receiverAccountNumber, Double amount) {
         this.senderAccountNumber = senderAccountNumber;
         this.receiverAccountNumber = receiverAccountNumber;
         this.amount = amount;
-        this.timestamp = timestamp;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getSenderAccountNumber() {
@@ -54,12 +40,5 @@ public class TransactionDTO {
     public void setAmount(Double amount) {
         this.amount = amount;
     }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
 }
+
