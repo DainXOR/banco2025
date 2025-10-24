@@ -3,15 +3,18 @@ package com.udea.dainxor.banco2025;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.udea.dainxor.banco2025.controller.CustomerController;
 import com.udea.dainxor.banco2025.controller.FakerController;
+import com.udea.dainxor.banco2025.controller.TransactionController;
 import com.udea.dainxor.banco2025.dto.CustomerDTO;
 import com.udea.dainxor.banco2025.dto.DepositDTO;
+import com.udea.dainxor.banco2025.dto.TransactionDTO;
+import com.udea.dainxor.banco2025.dto.TransactionRequestDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatusCode;
 
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +25,8 @@ class Banco2025ApplicationTests {
 	FakerController fakerController;
 	@Autowired
 	CustomerController customerController;
+	@Autowired
+	TransactionController transactionController;
 
 	@Test
 	void health(){
@@ -154,11 +159,116 @@ class Banco2025ApplicationTests {
 		CustomerDTO updatedCustomer = response.getBody();
 		assertNotNull(updatedCustomer);
 		assertEquals(testCustomer.getBalance() + depositAmount, updatedCustomer.getBalance());
-		testCustomer = updatedCustomer;
 	}
 
 	// > End Customer tests
 	// > Transaction tests
+	@Test
+	void testCreateTransaction(){
+		var c1 = createCustomer();
+		var c2 = createCustomer();
+
+		customerController.depositMoney(new DepositDTO(c1.getId(), 1000.0));
+
+		var testTransaction = new TransactionRequestDTO();
+		testTransaction.setSenderAccountNumber(c1.getAccountNumber());
+		testTransaction.setReceiverAccountNumber(c2.getAccountNumber());
+		testTransaction.setAmount(250.0);
+
+		var timestampBefore = ChronoLocalDateTime.from(java.time.LocalDateTime.now());
+		var response = transactionController.create(testTransaction);
+		var timestampAfter = ChronoLocalDateTime.from(java.time.LocalDateTime.now());
+		// assertEquals(HttpStatusCode.valueOf(201), response.getStatusCode());
+
+		if (response.getStatusCode().isError()) {
+			fail(response.getBody() instanceof String msg ? msg : "Transaction creation failed with unknown error");
+		}
+		else if (response.getBody() instanceof TransactionDTO newTransaction) {
+			assertNotNull(newTransaction);
+			assertNotNull(newTransaction.getId());
+			assertEquals(c1.getAccountNumber(), newTransaction.getSenderAccountNumber());
+			assertEquals(c2.getAccountNumber(), newTransaction.getReceiverAccountNumber());
+			assertEquals(250.0, newTransaction.getAmount());
+			assertTrue(newTransaction.getTimestamp().isAfter(timestampBefore));
+			assertTrue(newTransaction.getTimestamp().isBefore(timestampAfter));
+		}
+
+
+	}
+
+	TransactionDTO createTransactionFor(CustomerDTO sender, CustomerDTO receiver, double amount){
+		if (sender.getBalance() < amount)
+		customerController.depositMoney(new DepositDTO(sender.getId(), amount + 100.0));
+
+		var testTransaction = new TransactionRequestDTO();
+		testTransaction.setSenderAccountNumber(sender.getAccountNumber());
+		testTransaction.setReceiverAccountNumber(receiver.getAccountNumber());
+		testTransaction.setAmount(amount);
+
+		var response = transactionController.create(testTransaction).getBody();
+		return (TransactionDTO) response;
+	}
+	TransactionDTO createTransaction(){
+		var c1 = createCustomer();
+		var c2 = createCustomer();
+
+		return createTransactionFor(c1, c2, 150);
+	}
+
+	@Test
+	void testGetTransactionByID(){
+		var testTransaction = createTransaction();
+
+		var response = transactionController.getTransactionsByID(testTransaction.getId());
+		assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+		var fetchedTransaction = response.getBody();
+		assertNotNull(fetchedTransaction);
+		assertEquals(testTransaction.getId(), fetchedTransaction.getId());
+		assertEquals(testTransaction.getSenderAccountNumber(), fetchedTransaction.getSenderAccountNumber());
+		assertEquals(testTransaction.getReceiverAccountNumber(), fetchedTransaction.getReceiverAccountNumber());
+		assertEquals(testTransaction.getAmount(), fetchedTransaction.getAmount());
+		assertEquals(testTransaction.getTimestamp(), fetchedTransaction.getTimestamp());
+	}
+
+	@Test
+	void testGetTransactionsBySenderAccountNumber(){
+		var senderCustomer = createCustomer();
+		var testTransactions = List.of(
+				createTransactionFor(senderCustomer, createCustomer(), 200.0),
+				createTransactionFor(senderCustomer, createCustomer(), 300.0),
+				createTransactionFor(senderCustomer, createCustomer(), 1500.0)
+		);
+
+		var response = transactionController.getTransactionsByAccountNumber(senderCustomer.getAccountNumber());
+		assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+
+		var fetchedTransactions = response.getBody();
+		assertNotNull(fetchedTransactions);
+        assertEquals(fetchedTransactions.size(), testTransactions.size());
+		for(var testTransaction : testTransactions){
+			assertTrue(fetchedTransactions.stream().anyMatch(t -> t.getId().equals(testTransaction.getId())));
+		}
+	}
+
+	@Test
+	void testGetTransactionsByReceiverAccountNumber(){
+		var receiverCustomer = createCustomer();
+		var testTransactions = List.of(
+				createTransactionFor(createCustomer(), receiverCustomer, 500.0),
+				createTransactionFor(createCustomer(), receiverCustomer, 100.0),
+				createTransactionFor(createCustomer(), receiverCustomer, 750.0)
+		);
+
+		var response = transactionController.getTransactionsByAccountNumber(receiverCustomer.getAccountNumber());
+		assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+
+		var fetchedTransactions = response.getBody();
+		assertNotNull(fetchedTransactions);
+		assertEquals(fetchedTransactions.size(), testTransactions.size());
+		for(var testTransaction : testTransactions){
+			assertTrue(fetchedTransactions.stream().anyMatch(t -> t.getId().equals(testTransaction.getId())));
+		}
+	}
 
 	// > End Transaction tests
 }
