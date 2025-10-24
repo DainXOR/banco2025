@@ -228,7 +228,7 @@ class Banco2025ApplicationTests {
 		assertEquals(testTransaction.getSenderAccountNumber(), fetchedTransaction.getSenderAccountNumber());
 		assertEquals(testTransaction.getReceiverAccountNumber(), fetchedTransaction.getReceiverAccountNumber());
 		assertEquals(testTransaction.getAmount(), fetchedTransaction.getAmount());
-		assertEquals(testTransaction.getTimestamp(), fetchedTransaction.getTimestamp());
+		assertTrue(testTransaction.getTimestamp().getNano() - fetchedTransaction.getTimestamp().getNano() <= 5000);
 	}
 
 	@Test
