@@ -5,14 +5,13 @@ import com.udea.dainxor.banco2025.controller.CustomerController;
 import com.udea.dainxor.banco2025.controller.FakerController;
 import com.udea.dainxor.banco2025.dto.CustomerDTO;
 import com.udea.dainxor.banco2025.dto.DepositDTO;
-import com.udea.dainxor.banco2025.dto.TransactionDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,9 +22,6 @@ class Banco2025ApplicationTests {
 	FakerController fakerController;
 	@Autowired
 	CustomerController customerController;
-
-	private CustomerDTO testCustomer;
-	private TransactionDTO testTransaction;
 
 	@Test
 	void health(){
@@ -82,8 +78,8 @@ class Banco2025ApplicationTests {
 	// > End Faker tests
 	// > Customer tests
 	@Test
-	void createCustomer() {
-		testCustomer = new CustomerDTO();
+	void testCreateCustomer() {
+		var testCustomer = new CustomerDTO();
 		testCustomer.setFirstName("Test");
 		testCustomer.setLastName("User");
 		testCustomer.setAccountNumber("1234567890");
@@ -101,33 +97,53 @@ class Banco2025ApplicationTests {
 		assertEquals(0.0, createdCustomer.getBalance());
 	}
 
+	CustomerDTO createCustomer(){
+		var testCustomer = new CustomerDTO();
+		testCustomer.setFirstName("Test");
+		testCustomer.setLastName("User");
+		return customerController.createCustomer(testCustomer).getBody();
+	}
+
 	@Test
-	void getAllCustomersNotNull(){
+	void testGetAllCustomers(){
+		var testCustomers = List.of(createCustomer(), createCustomer());
+
 		List<CustomerDTO> customers = customerController.getAll().getBody();
         assertNotNull(customers);
         assertFalse(customers.isEmpty());
+		assertTrue(customers.size() >= testCustomers.size());
+
+		for(var testCustomer : testCustomers){
+			assertTrue(customers.stream().anyMatch(c -> c.getId().equals(testCustomer.getId())));
+		}
 	}
 
 	@Test
 	void getByIdNotFound(){
 		var response = customerController.getById(9999L);
-		assertTrue(response.getStatusCode().is4xxClientError());
+		assertTrue(response.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(404)));
 	}
 
 	@Test
 	void getById(){
+		var testCustomer = createCustomer();
 		var response = customerController.getById(testCustomer.getId());
-		assertEquals(testCustomer, response.getBody());
+		assertNotNull(response.getBody());
+		assertEquals(testCustomer.getId(), response.getBody().getId());
 	}
 
 	@Test
 	void getByAccountNumber(){
+		var testCustomer = createCustomer();
 		var response = customerController.getByAccountNumber(testCustomer.getAccountNumber());
-		assertEquals(testCustomer, response.getBody());
+		assertNotNull(response.getBody());
+		assertEquals(testCustomer.getId(), response.getBody().getId());
 	}
 
 	@Test
 	void depositMoney(){
+		var testCustomer = createCustomer();
+
 		Double depositAmount = 500.0;
 		var depositDTO = new DepositDTO();
 		depositDTO.setId(testCustomer.getId());
