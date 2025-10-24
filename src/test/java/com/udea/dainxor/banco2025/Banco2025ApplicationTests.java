@@ -197,8 +197,9 @@ class Banco2025ApplicationTests {
 	}
 
 	TransactionDTO createTransactionFor(CustomerDTO sender, CustomerDTO receiver, double amount){
-		if (sender.getBalance() < amount)
-		customerController.depositMoney(new DepositDTO(sender.getId(), amount + 100.0));
+		if (sender.getBalance() < amount){
+			customerController.depositMoney(new DepositDTO(sender.getId(), amount + 100.0));
+		}
 
 		var testTransaction = new TransactionRequestDTO();
 		testTransaction.setSenderAccountNumber(sender.getAccountNumber());
