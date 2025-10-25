@@ -7,6 +7,7 @@ import com.udea.dainxor.banco2025.entity.Transaction;
 import com.udea.dainxor.banco2025.mapper.TransactionMapper;
 import com.udea.dainxor.banco2025.repository.CustomerRepository;
 import com.udea.dainxor.banco2025.repository.TransactionRepository;
+import com.udea.dainxor.banco2025.types.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,19 +27,26 @@ public class TransactionService {
         this.transactionMapper = transactionMapper;
     }
 
-    public TransactionDTO create(TransactionRequestDTO transactionRequestDTO) {
+    public Result<TransactionDTO, String> create(TransactionRequestDTO transactionRequestDTO)  {
         if(transactionRequestDTO.getSenderAccountNumber() == null || transactionRequestDTO.getReceiverAccountNumber() == null) {
-            throw new IllegalArgumentException("Sender and receiver account numbers must be provided.");
+            return Result.error("Sender and receiver account numbers must be provided.");
         }
 
-        Customer sender = customerRepository.findByAccountNumber(transactionRequestDTO.getSenderAccountNumber())
-                .orElseThrow(() -> new IllegalArgumentException("Sender account not found."));
+        Optional<Customer> senderOpt = customerRepository.findByAccountNumber(transactionRequestDTO.getSenderAccountNumber());
+        if (senderOpt.isEmpty()) {
+            return Result.error("Sender account not found.");
+        }
 
-        Customer receiver = customerRepository.findByAccountNumber(transactionRequestDTO.getReceiverAccountNumber())
-                .orElseThrow(() -> new IllegalArgumentException("Receiver account not found."));
+        Optional<Customer> receiverOpt = customerRepository.findByAccountNumber(transactionRequestDTO.getReceiverAccountNumber());
+        if (receiverOpt.isEmpty()) {
+            return Result.error("Receiver account not found.");
+        }
+
+        var sender = senderOpt.get();
+        var receiver = receiverOpt.get();
 
         if (sender.getBalance() < transactionRequestDTO.getAmount()) {
-            throw new IllegalArgumentException("Insufficient funds in sender's account.");
+            return Result.error("Insufficient funds in sender's account.");
         }
 
         sender.setBalance(sender.getBalance() - transactionRequestDTO.getAmount());
@@ -50,7 +58,8 @@ public class TransactionService {
         Transaction transaction = transactionMapper.toEntity(transactionRequestDTO);
         transaction.setTimestamp(java.time.LocalDateTime.now());
         Transaction savedTransaction = transactionRepository.save(transaction);
-        return transactionMapper.toDTO(savedTransaction);
+
+        return Result.success(transactionMapper.toDTO(savedTransaction));
     }
 
     public List<TransactionDTO> getAllTransactions() {

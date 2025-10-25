@@ -1,8 +1,10 @@
 package com.udea.dainxor.banco2025.controller;
 
+import com.udea.dainxor.banco2025.types.HttpResponse;
 import com.udea.dainxor.banco2025.dto.TransactionDTO;
 import com.udea.dainxor.banco2025.dto.TransactionRequestDTO;
 import com.udea.dainxor.banco2025.service.TransactionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,21 +20,17 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody TransactionRequestDTO transactionRequestDTO) {
-        try {
-            TransactionDTO result = transactionService.create(transactionRequestDTO);
-            return ResponseEntity.status(201).body(result);
+    public HttpResponse<TransactionDTO> create(@RequestBody TransactionRequestDTO transactionRequestDTO) {
+        var result = transactionService.create(transactionRequestDTO);
 
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return HttpResponse.fromResult(result, HttpStatus.CREATED, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransactionDTO> getTransactionsByID(@PathVariable Long id) {
+    public HttpResponse<TransactionDTO> getTransactionByID(@PathVariable Long id) {
         return transactionService.getTransactionById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .map((transaction) -> HttpResponse.success(transaction, HttpStatus.OK))
+                .orElseGet(() -> HttpResponse.error("Transaction not found", HttpStatus.NOT_FOUND));
 
     }
     @GetMapping("/account/{accountNumber}")

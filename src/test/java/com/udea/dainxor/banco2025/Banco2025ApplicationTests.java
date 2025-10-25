@@ -178,22 +178,19 @@ class Banco2025ApplicationTests {
 		var timestampBefore = ChronoLocalDateTime.from(java.time.LocalDateTime.now());
 		var response = transactionController.create(testTransaction);
 		var timestampAfter = ChronoLocalDateTime.from(java.time.LocalDateTime.now());
-		// assertEquals(HttpStatusCode.valueOf(201), response.getStatusCode());
+		assertEquals(HttpStatusCode.valueOf(201), response.getStatusCode());
 
-		if (response.getStatusCode().isError()) {
-			fail(response.getBody() instanceof String msg ? msg : "Transaction creation failed with unknown error");
-		}
-		else if (response.getBody() instanceof TransactionDTO newTransaction) {
-			assertNotNull(newTransaction);
-			assertNotNull(newTransaction.getId());
-			assertEquals(c1.getAccountNumber(), newTransaction.getSenderAccountNumber());
-			assertEquals(c2.getAccountNumber(), newTransaction.getReceiverAccountNumber());
-			assertEquals(250.0, newTransaction.getAmount());
-			assertTrue(newTransaction.getTimestamp().isAfter(timestampBefore));
-			assertTrue(newTransaction.getTimestamp().isBefore(timestampAfter));
-		}
+		var body = response.getBody();
+		assertNotNull(body);
 
-
+		TransactionDTO newTransaction = body.data();
+		assertNotNull(newTransaction);
+		assertNotNull(newTransaction.getId());
+		assertEquals(c1.getAccountNumber(), newTransaction.getSenderAccountNumber());
+		assertEquals(c2.getAccountNumber(), newTransaction.getReceiverAccountNumber());
+		assertEquals(250.0, newTransaction.getAmount());
+		assertTrue(newTransaction.getTimestamp().isAfter(timestampBefore));
+		assertTrue(newTransaction.getTimestamp().isBefore(timestampAfter));
 	}
 
 	TransactionDTO createTransactionFor(CustomerDTO sender, CustomerDTO receiver, double amount){
@@ -207,7 +204,8 @@ class Banco2025ApplicationTests {
 		testTransaction.setAmount(amount);
 
 		var response = transactionController.create(testTransaction).getBody();
-		return (TransactionDTO) response;
+        assert response != null;
+        return response.data();
 	}
 	TransactionDTO createTransaction(){
 		var c1 = createCustomer();
@@ -220,15 +218,18 @@ class Banco2025ApplicationTests {
 	void testGetTransactionByID(){
 		var testTransaction = createTransaction();
 
-		var response = transactionController.getTransactionsByID(testTransaction.getId());
+		var response = transactionController.getTransactionByID(testTransaction.getId());
 		assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
-		var fetchedTransaction = response.getBody();
-		assertNotNull(fetchedTransaction);
-		assertEquals(testTransaction.getId(), fetchedTransaction.getId());
-		assertEquals(testTransaction.getSenderAccountNumber(), fetchedTransaction.getSenderAccountNumber());
-		assertEquals(testTransaction.getReceiverAccountNumber(), fetchedTransaction.getReceiverAccountNumber());
-		assertEquals(testTransaction.getAmount(), fetchedTransaction.getAmount());
-		assertTrue(testTransaction.getTimestamp().getNano() - fetchedTransaction.getTimestamp().getNano() <= 5000);
+		
+		var result = response.getBody();
+		assertNotNull(result);
+
+		TransactionDTO transaction = result.data();
+		assertEquals(testTransaction.getId(), transaction.getId());
+		assertEquals(testTransaction.getSenderAccountNumber(), transaction.getSenderAccountNumber());
+		assertEquals(testTransaction.getReceiverAccountNumber(), transaction.getReceiverAccountNumber());
+		assertEquals(testTransaction.getAmount(), transaction.getAmount());
+		assertTrue(testTransaction.getTimestamp().getNano() - transaction.getTimestamp().getNano() <= 5000);
 	}
 
 	@Test
