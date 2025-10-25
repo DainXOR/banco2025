@@ -8,9 +8,13 @@ import com.udea.dainxor.banco2025.dto.CustomerDTO;
 import com.udea.dainxor.banco2025.dto.DepositDTO;
 import com.udea.dainxor.banco2025.dto.TransactionDTO;
 import com.udea.dainxor.banco2025.dto.TransactionRequestDTO;
+import com.udea.dainxor.banco2025.types.HttpResponse;
+import com.udea.dainxor.banco2025.types.ResponseBody;
+import com.udea.dainxor.banco2025.types.Result;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 import java.time.chrono.ChronoLocalDateTime;
@@ -220,7 +224,7 @@ class Banco2025ApplicationTests {
 
 		var response = transactionController.getTransactionByID(testTransaction.getId());
 		assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
-		
+
 		var result = response.getBody();
 		assertNotNull(result);
 
@@ -273,6 +277,133 @@ class Banco2025ApplicationTests {
 	}
 
 	// > End Transaction tests
+
+	// > Utility tests
+	@Test
+	void testResultSuccess(){
+		var data = "Test Data";
+		Result<String, String> result = Result.success(data);
+
+		assertTrue(result.isSuccess());
+		assertFalse(result.isError());
+		assertEquals(data, result.data());
+		assertNull(result.error());
+	}
+	@Test
+	void testResultError(){
+		var errorMessage = "Test Error";
+		Result<String, String> result = Result.error(errorMessage);
+
+		assertTrue(result.isError());
+		assertFalse(result.isSuccess());
+		assertNull(result.data());
+		assertEquals(errorMessage, result.error());
+	}
+	@Test
+	void testResultSuccessWithNullDataAndError(){
+		Result<String, String> result = new Result<>(null, null);
+
+		assertTrue(result.isSuccess());
+		assertFalse(result.isError());
+		assertNull(result.data());
+		assertNull(result.error());
+	}
+	@Test
+	void testResultErrorWithDataAndErrorPresent(){
+		Result<String, String> result = new Result<>("Some Data", "Some Error");
+
+		assertFalse(result.isSuccess());
+		assertTrue(result.isError());
+		assertEquals("Some Data", result.data());
+		assertEquals("Some Error", result.error());
+	}
+
+	@Test
+	void testHttpResponseSuccess(){
+		var data = "Test Data";
+		var response = HttpResponse.success(data, HttpStatus.valueOf(200));
+
+		assertEquals(HttpStatus.valueOf(200), response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertEquals(data, response.getBody().data());
+	}
+	@Test
+	void testHttpResponseError(){
+		var errorMessage = "Test Error";
+		var response = HttpResponse.error(errorMessage, HttpStatus.valueOf(400));
+
+		assertEquals(HttpStatus.valueOf(400), response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertEquals(errorMessage, response.getBody().message());
+	}
+	@Test
+	void testHttpResponseFromResultSuccess(){
+		var data = "Test Data";
+		Result<String, String> result = Result.success(data);
+
+		var response = HttpResponse.fromResult(result, HttpStatus.OK, HttpStatus.BAD_REQUEST);
+
+		assertEquals(HttpStatus.valueOf(200), response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertEquals(data, response.getBody().data());
+	}
+	@Test
+	void testHttpResponseFromResultError(){
+		var errorMessage = "Test Error";
+		Result<String, String> result = Result.error(errorMessage);
+
+		var response = HttpResponse.fromResult(result, HttpStatus.OK, HttpStatus.BAD_REQUEST);
+
+		assertEquals(HttpStatus.valueOf(400), response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertEquals(errorMessage, response.getBody().message());
+	}
+
+	@Test
+	void testResponseBodyOfData(){
+		var data = "Test Data";
+		ResponseBody<String> responseBody = ResponseBody.of(data);
+
+		assertNotNull(responseBody);
+		assertEquals(data, responseBody.data());
+		assertEquals("", responseBody.message());
+	}
+	@Test
+	void testResponseBodyEmpty(){
+		var message = "Test Message";
+		ResponseBody<String> responseBody = ResponseBody.empty(message);
+
+		assertNotNull(responseBody);
+		assertNull(responseBody.data());
+		assertEquals(message, responseBody.message());
+	}
+	@Test
+	void testResponseBodyOfNullData(){
+		ResponseBody<String> responseBody = ResponseBody.of(null);
+
+		assertNotNull(responseBody);
+		assertNull(responseBody.data());
+		assertEquals("", responseBody.message());
+	}
+	@Test
+	void testResponseBodyEmptyWithNullMessage(){
+		ResponseBody<String> responseBody = ResponseBody.empty(null);
+
+		assertNotNull(responseBody);
+		assertNull(responseBody.data());
+		assertEquals("", responseBody.message());
+	}
+	@Test
+	void testResponseBodyEmptyWithDataAndMessage(){
+		var data = "Test Data";
+		var message = "Test Message";
+		ResponseBody<String> responseBody = new ResponseBody<>(data, message);
+
+		assertNotNull(responseBody);
+		assertEquals(data, responseBody.data());
+		assertEquals(message, responseBody.message());
+	}
+	// > End Utility tests
 }
 
 

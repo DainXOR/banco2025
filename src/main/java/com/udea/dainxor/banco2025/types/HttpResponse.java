@@ -12,12 +12,12 @@ public class HttpResponse<DTO> extends ResponseEntity<ResponseBody<DTO>> {
         return new HttpResponse<>(ResponseBody.of(data), status);
     }
     public static <DTO>HttpResponse<DTO> error(String errorMessage, HttpStatus status) {
-        return new HttpResponse<>(ResponseBody.of(errorMessage), status);
+        return new HttpResponse<>(ResponseBody.empty(errorMessage), status);
     }
 
     public static <DTO> HttpResponse<DTO> fromResult(Result<DTO, String> result, HttpStatus successStatus, HttpStatus errorStatus) {
         if (result.isError()) {
-            return new HttpResponse<>(ResponseBody.of(result.error()), errorStatus);
+            return new HttpResponse<>(ResponseBody.empty(result.error()), errorStatus);
         } else {
             return new HttpResponse<>(ResponseBody.of(result.data()), successStatus);
         }

@@ -14,7 +14,7 @@ public record Result<S, E> (S data, E error) {
     }
 
     public boolean isError() {
-        return error != null || data == null;
+        return error != null;
     }
 }
 
