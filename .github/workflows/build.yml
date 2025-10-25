@@ -111,4 +111,14 @@ jobs:
           #From this path
           path: target/banco_udea-0.0.1-SNAPSHOT.jar
 
+      - name: Build and Push Docker Image
+        uses: mr-smithers-excellent/docker-build-push@v5
+        with:
+            image: dainxor/banco_udea
+            tags: latest
+            registry: docker.io
+            dockerfile: Dockerfile
+            username: ${{ secrets.DOCKER_HUB_USERNAME }}
+            password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
 
