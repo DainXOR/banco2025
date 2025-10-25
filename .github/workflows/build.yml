@@ -112,7 +112,7 @@ jobs:
           path: target/banco_udea-0.0.1-SNAPSHOT.jar
 
       - name: Build and Push Docker Image
-        uses: mr-smithers-excellent/docker-build-push@v5
+        uses: mr-smithers-excellent/docker-build-push@v6
         with:
             image: dainxor/banco_udea
             tags: latest
