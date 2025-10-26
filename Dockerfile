@@ -10,7 +10,7 @@ WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM openjdk:21-jdk-slim
+FROM openjdk:26-jdk-slim
 WORKDIR /app
 
 # Copy the built jar from the build stage
