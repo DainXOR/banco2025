@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: banco-udea
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: banco-udea
